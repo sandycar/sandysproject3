@@ -1,11 +1,14 @@
 var express = require("express");
 var mongojs = require("mongojs");
 var bodyParser = require('body-parser');
-
+var axios = require("axios");
+var cheerio = require("cheerio");
 
 var PORT = 3001;
 var app = express();
-
+var exphbs = require("express-handlebars");
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 // set the app up with bodyparser
 app.use(bodyParser());
 
@@ -50,6 +53,32 @@ app.use(function(req, res, next) {
 
 	{"message":"successfuly authenticated","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YmM1OTZjOGUxOTZmYmIwZTdkNWI0MGYiLCJ1c2VybmFtZSI6ImZyZWQiLCJpYXQiOjE1Mzk2NzU4OTIsImV4cCI6MTUzOTY5MDI5Mn0.xalv4I9rSmKf9LV6QaeJboV4NvY0F7wIltDMc-o_amQ"}
 */
+
+/*
+/foodtruckinfo/0
+/foodtruckinfo/1
+*/
+app.get("/foodtruckinfo/:page", function(req, res) {
+  // Make a request via axios for the news section of `ycombinator`
+  axios.get("https://www.foodtrucksin.com/city/san-francisco_ca?page=" + req.params.page).then(function(response) {
+    // Load the html body from axios into cheerio
+    var $ = cheerio.load(response.data);
+    // var arr = document.querySelectorAll('.truck_details')
+    // for (var i in arr){
+    // console.log(arr[i].innerText);
+    // };
+    $(".truck_details").each(function(i, element) {
+        // res.send( $(element).find('ul article').html() )
+        // I'm not sure how to show all the food truck info I want from here and then eventually store into my mongodb
+        console.log( $(element).find('.trucktitle') )
+        // console.log( $(element).hasClass(".citystate").text())
+        res.json( {html: $(element).html()} )
+        return false;
+        
+      });
+    });
+  });
+
 app.get("/", function(req, res) {
  console.log(req)   
     // Insert the song into the songs collection
