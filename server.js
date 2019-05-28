@@ -43,52 +43,73 @@ app.use(function(req, res, next) {
     next();
 });
 
-// app.get('/', function(req, res) {
-//     res.send('Hello world');
-// });
-
-//curl -d "username=fred&password=unodostresgreenbaypackers" -X POST http://localhost:3001/login
-/*
-	this will return
-
-	{"message":"successfuly authenticated","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YmM1OTZjOGUxOTZmYmIwZTdkNWI0MGYiLCJ1c2VybmFtZSI6ImZyZWQiLCJpYXQiOjE1Mzk2NzU4OTIsImV4cCI6MTUzOTY5MDI5Mn0.xalv4I9rSmKf9LV6QaeJboV4NvY0F7wIltDMc-o_amQ"}
-*/
-
 /*
 /foodtruckinfo/0
 /foodtruckinfo/1
 */
-app.get("/foodtruckinfo/:page", function(req, res) {
+
+app.get("/foodtruckinfo", function (req, res) {
+  console.log('hello route')
+  var $;
   // Make a request via axios for the news section of `ycombinator`
-  axios.get("https://www.foodtrucksin.com/city/san-francisco_ca?page=" + req.params.page).then(function(response) {
+  axios.get("https://www.foodtrucksin.com/city/san-francisco_ca?page=1").then(function (response) {
     // Load the html body from axios into cheerio
-    var $ = cheerio.load(response.data);
-    // var arr = document.querySelectorAll('.truck_details')
-    // for (var i in arr){
-    // console.log(arr[i].innerText);
+    $ = cheerio.load(response.data);
     // };
-    $(".truck_details").each(function(i, element) {
-        // res.send( $(element).find('ul article').html() )
-        // I'm not sure how to show all the food truck info I want from here and then eventually store into my mongodb
-        console.log( $(element).find('.trucktitle') )
-        // console.log( $(element).hasClass(".citystate").text())
-        res.json( {html: $(element).html()} )
-        return false;
-        
-      });
+    // For each element with a "title" class
+    $(".truck_details").each(function (i, element) {
+      // var text = $(this).find('h2').children().attr('href')
+      // console.log($(element).children().children().eq(0).html()); //title
+      // console.log($(element).children().eq(1).html()); //city
+      // console.log($(element).children().eq(3).html()); //food type
+      var title = $(element).children().children().eq(0).html();
+      var city = $(element).children().eq(1).html();
+      var foodType = $(element).children().eq(3).html();
+      console.log('title: ', title) //title: Lobster Truck
+      console.log('city: ', city) // city: San Francisco, CA
+      console.log('foodType: ', foodType) //foodType: Seafood 
+      // If this found element had both a title and a link
+      if (title && city && foodType) {
+        //   // Insert the data in the scrapedData db
+        db.scrapedData.insert({
+          title: title,
+          city: city,
+          food_type: foodType
+        },
+          function (err, inserted) {
+            if (err) {
+              // Log the error if one is encountered during the query
+              console.log(err);
+            }
+            else {
+              // Otherwise, log the inserted data
+              console.log(inserted);
+            }
+          });
+      }
     });
   });
+//Send a "Scrape Complete" message to the browser
+  res.send("Scrape Complete");
+});
+          // $(this).children().children().eq(0).find('a').attr('src')
+        // Save the text and href of each link enclosed in the current element
+        // console.log($(element).html())
+        // res.json( $(i).html())
+  //     });
+  //   });
+  // });
 
 app.get("/", function(req, res) {
- console.log(req)   
+//  console.log(req)   
     // Insert the song into the songs collection
-    db.foodtrucks.insert({name: "senor sisig", cuisine: "filipino", phone: "8081231234", payment:"cash", days:"M-F"}, function(error, foodtrucks) {
+    db.foodtrucks.insert(
+      {name: "senor sisig", cuisine: "filipino", phone: "8081231234", payment:"cash", days:"M-F"}, function(error, foodtrucks){
       // Log any errors
       if (error) {
         console.log(error);
       }else {
-        
-        res.json(foodtrucks);
+        res.send(foodtrucks);
       }
     });
   });

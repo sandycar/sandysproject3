@@ -1,0 +1,24 @@
+> use foodtrucks_db
+switched to db foodtrucks_db
+> db.foodtrucks_db.insertMany( [
+{name: "Get Kraken", cuisine: "seafood", phone: "4151234567", payment:"credit,cash", days:"M-F"}, 
+{name: "Linguini", cuisine: "italian", phone: "4159876543", payment:"credit,cash", days:"M-F"}, 
+{name: "Desperado Tacos", cuisine: "mexican", phone: "4151234567", payment:"apple pay,credit,cash", days:"M-F"}, 
+{name: "Royale w/Cheese", cuisine: "american", phone: "4156505081", payment:"apple pay,credit,cash", days:"M-F"},
+{name: "Strange Shakes", cuisine: "dessert", phone: "4151334567", payment:"credit,cash", days:"M-F"}, 
+{name: "Drogon Fire Wings", cuisine: "american", phone: "4151434567", payment:"apple pay, credit,cash", days:"M-F"}]
+]);
+
+
+query your database for all the classmates that have skateboarded
+db.classroom.find({skateboarded:true})
+
+query your database for all the classmates that have not skateboarded
+db.classroom.find({skateboarded:false})
+
+query your database for all the classmates that have a hobby of skateboarding
+db.classroom.find({"hobbies": {$in: ["skateboarding"]}})
+
+query your database for all the classmates named 'rob'
+db.classroom.find({name:"rob"})
+
