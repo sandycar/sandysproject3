@@ -1,14 +1,21 @@
+//Dependencies
 var express = require("express");
 var mongojs = require("mongojs");
 var bodyParser = require('body-parser');
+    //For Scraping
 var axios = require("axios");
 var cheerio = require("cheerio");
+    //For login/logout (authentication)
+var bcrypt = require('../node.bcrypt.js/build/Release/bcrypt_lib.node');
+var jwt = require('jsonwebtoken');
 
 var PORT = 3001;
 var app = express();
+
 var exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
+
 // set the app up with bodyparser
 app.use(bodyParser());
 
@@ -27,6 +34,10 @@ db.on("error", function(error) {
 //this loads the .env file in
 //we need this for secret information that we don't want on our github
 require('dotenv').config()
+
+console.log('----------hola-----------');
+console.log(process.env.JWT_SECRET);
+console.log('----------adios-----------');
 
 /*
   if we don't do this here then we'll get this error in apps that use this api
@@ -113,6 +124,12 @@ app.get("/", function(req, res) {
       }
     });
   });
+
+app.get('/findatruck', function(req, res) {
+    db.foodtrucks.find(function(error, data) {
+        res.json(data);
+    })
+})
 
 app.listen(PORT, function() {
     console.log('🌎 ==> Now listening on PORT %s! Visit http://localhost:%s in your browser!', PORT, PORT);
